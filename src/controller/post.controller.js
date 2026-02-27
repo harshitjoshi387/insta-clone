@@ -2,7 +2,7 @@ const postModel =require("../model/post.model")
 const ImageKit =require("@imagekit/nodejs")
 const {toFile} = require("@imageKit/nodejs")
 
-const ImageKit = Imagekit({
+const ImageKit = new Imagekit({
     privateKey:process.env.IMAGEKIT_PRIVATEKEY
 })
 
@@ -15,7 +15,36 @@ async function createPostController(req,res){
 res.send(file)
 }
 
+async function getPostController(req,res){
+    const token = req.cookies.token
+
+    let decoded;
+try{
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+}catch(err){
+        return res.status (401).json({
+            message:"Token invalid"
+        })
+}
+
+const userId = decoded.id
+
+const posts= await postModel.find ({
+     user:userId
+})
+
+res.status(200).json({
+    message:"posts fetched sucessfully.",
+    posts
+})
+
+
+   
+}
 
 
 
-module.exports=createPostController
+module.exports={
+    createPostController,
+    getPostController
+}
